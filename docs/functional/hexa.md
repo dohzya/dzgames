@@ -164,13 +164,13 @@ colorMult(c)  = c < 4 ? 1 : c - 2
 
 `n` = nombre de tuiles effacées (minimum 10). `c` = indice de la couleur.
 
-| Couleur   | colorMult |
-| --------- | --------- |
-| Magenta–Jaune (0–3) | ×1 |
-| Violet (4)    | ×2 |
-| Turquoise (5) | ×3 |
-| Blanc (6)     | ×4 |
-| Noir (7)      | ×5 |
+| Couleur             | colorMult |
+| ------------------- | --------- |
+| Magenta–Jaune (0–3) | ×1        |
+| Violet (4)          | ×2        |
+| Turquoise (5)       | ×3        |
+| Blanc (6)           | ×4        |
+| Noir (7)            | ×5        |
 
 Exemples :
 | Effacées | Points |

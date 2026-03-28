@@ -80,6 +80,13 @@ type LiveState = {
   lastTransferred: ReadonlySet<string>;
 };
 
+type LastMoveInfo = {
+  readonly total: number;
+  readonly combo: number;
+  readonly eMult: number;
+  readonly tBonus: number;
+};
+
 type CbRef = {
   dragMove: (cx: number, cy: number) => void;
   dragEnd: (cx: number, cy: number) => void;
@@ -172,6 +179,7 @@ export default function HexStackGame({ onBack }: HexStackGameProps): React.React
   );
   const [newColorBanner, setNewColorBanner] = useState<string | null>(null);
   const [resumeBanner, setResumeBanner] = useState(() => saved !== null);
+  const [lastMoveInfo, setLastMoveInfo] = useState<LastMoveInfo | null>(null);
   const [, setCheatTaps] = useState([0, 0, 0]);
   const [cheatUnlocked, setCheatUnlocked] = useState(false);
 
@@ -200,6 +208,30 @@ export default function HexStackGame({ onBack }: HexStackGameProps): React.React
     activeTool,
     lastTransferred,
   };
+
+  function buildLastMoveInfo(
+    steps: ReadonlyArray<Step>,
+    nc: number,
+    emptiedCount: number,
+    newCombo: number,
+    eMult: number,
+    tBonus: number
+  ): LastMoveInfo {
+    const clearPtsTotal =
+      nc > 0
+        ? steps
+            .filter((s) => s.type === "clear")
+            .reduce((sum, s) => sum + Math.round(s.clearPtsBase * comboMult(newCombo)), 0)
+        : 0;
+    const applyEMult = nc > 0 && emptiedCount > 0;
+    const bonus = applyEMult ? Math.round(clearPtsTotal * (eMult - 1)) : tBonus;
+    return {
+      total: clearPtsTotal + bonus,
+      combo: newCombo,
+      eMult: applyEMult ? eMult : 1,
+      tBonus: applyEMult ? 0 : tBonus,
+    };
+  }
 
   // Auto-dismiss resume banner after 2 seconds
   useEffect(() => {
@@ -669,6 +701,7 @@ export default function HexStackGame({ onBack }: HexStackGameProps): React.React
 
     const tBonus = transferBonus(transferCount);
     const eMult = emptyMult(emptiedCount);
+    setLastMoveInfo(buildLastMoveInfo(steps, nc, emptiedCount, newCombo, eMult, tBonus));
     const [px, py] = cellXY(col, row);
     let bonusInfo: Popup | null = null;
 
@@ -762,6 +795,7 @@ export default function HexStackGame({ onBack }: HexStackGameProps): React.React
     setFlyHex(null);
     setGlowing(new Set());
     setPopups([]);
+    setLastMoveInfo(null);
   }
 
   // Action tools
@@ -848,6 +882,9 @@ export default function HexStackGame({ onBack }: HexStackGameProps): React.React
 
     const tBonus = transferBonus(transferCount);
     const eMult = emptyMult(emptiedCount);
+    setLastMoveInfo(
+      buildLastMoveInfo(allSteps, totalCleared, emptiedCount, newCombo, eMult, tBonus)
+    );
     const firstCell = startCells[0];
     const [px, py] = firstCell ? cellXY(firstCell[1], firstCell[0]) : [0, 0];
     let bonusInfo: Popup | null = null;
@@ -1055,6 +1092,7 @@ export default function HexStackGame({ onBack }: HexStackGameProps): React.React
     setCantAfford(null);
     setNewColorBanner(null);
     setActionUsages({ swap: 0, bubble: 0, trim: 0 });
+    setLastMoveInfo(null);
     clearSave();
     panStart.current = null;
     clickStart.current = null;
@@ -1217,16 +1255,7 @@ export default function HexStackGame({ onBack }: HexStackGameProps): React.React
       : []
   );
 
-  const cheapestLocked = useMemo(() => {
-    let min = Infinity;
-    cellMap.forEach((c) => {
-      if (c.state === "locked" && c.cost < min) min = c.cost;
-    });
-    return min === Infinity ? null : min;
-  }, [cellMap]);
-
   const canUndo = history.length > 0 && !isAnimating && points >= UNDO_COST;
-  const prog = getProgression(moveCount);
 
   return (
     <div
@@ -1310,39 +1339,47 @@ export default function HexStackGame({ onBack }: HexStackGameProps): React.React
         <span style={{ color: "#1a6090" }}>
           EFFACÉ <span style={{ color: "#208040", fontSize: 18, fontWeight: 900 }}>{cleared}</span>
         </span>
-        {combo >= 2 && (
-          <span
-            style={{
-              color: combo >= 3 ? "#e03050" : "#e07010",
-              fontWeight: 900,
-              fontSize: 13,
-              textShadow: combo >= 3 ? "0 0 8px rgba(224,48,80,0.5)" : "none",
-            }}
-          >
-            ×{comboMult(combo).toFixed(1).replace(".0", "")} COMBO !
-          </span>
-        )}
-        <span style={{ color: "#9bbcd4", fontSize: 10 }}>
-          {prog.nc} couleurs · {moveCount} coups
-        </span>
+        <span style={{ color: "#9bbcd4" }}>|</span>
+        <span style={{ color: "#9bbcd4", fontSize: 10 }}>{moveCount} coups</span>
       </div>
 
-      {/* Unlock hint */}
-      {cheapestLocked !== null && !gameOver && (
-        <div
-          style={{
-            fontSize: 10,
-            marginBottom: 2,
-            zIndex: 20,
-            position: "relative",
-            color: points >= cheapestLocked ? "#208040" : "#7aaac8",
-          }}
-        >
-          {points >= cheapestLocked
-            ? "✓ Tape une case verrouillée pour la débloquer"
-            : `Prochaine case : ${cheapestLocked.toLocaleString()} pts`}
-        </div>
-      )}
+      {/* Last move result */}
+      <div
+        style={{
+          minHeight: 18,
+          marginBottom: 2,
+          fontSize: 11,
+          fontWeight: 700,
+          display: "flex",
+          gap: 8,
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 20,
+          position: "relative",
+        }}
+      >
+        {lastMoveInfo && lastMoveInfo.total > 0 && (
+          <>
+            <span style={{ color: "#208040" }}>+{lastMoveInfo.total.toLocaleString()} pts</span>
+            {lastMoveInfo.combo >= 2 && (
+              <span
+                style={{
+                  color: lastMoveInfo.combo >= 3 ? "#e03050" : "#e07010",
+                  textShadow: lastMoveInfo.combo >= 3 ? "0 0 6px rgba(224,48,80,0.4)" : "none",
+                }}
+              >
+                ×{lastMoveInfo.combo} combo
+              </span>
+            )}
+            {lastMoveInfo.eMult > 1 && (
+              <span style={{ color: "#f1c40f" }}>×{lastMoveInfo.eMult} piles</span>
+            )}
+            {lastMoveInfo.tBonus > 0 && (
+              <span style={{ color: "#2ecc71" }}>+{lastMoveInfo.tBonus} bonus</span>
+            )}
+          </>
+        )}
+      </div>
 
       {/* Resume banner */}
       {resumeBanner && (
