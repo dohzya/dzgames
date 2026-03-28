@@ -313,7 +313,7 @@ export function isCellReady(
   const r = Number(rStr);
   const c = Number(cStr);
   return getNeighbors(r, c).some(([nr, nc]) => {
-    const nk: CellKey = `${String(nr)},${String(nc)}`;
+    const nk = `${String(nr)},${String(nc)}` as CellKey;
     const info = cellMap.get(nk);
     if (!info || info.state !== "unlocked") return false;
     return board[nr]?.[nc]?.length === 0 || lastTransferred.has(nk);

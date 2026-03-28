@@ -2,9 +2,10 @@ import { describe, it, expect } from "vitest";
 import { initGame } from "../board";
 import { getNeighbors } from "../geometry";
 import { OR, OC } from "../constants";
+import type { CellKey } from "../types";
 
-function toCellKey(r: number, c: number): string {
-  return `${String(r)},${String(c)}`;
+function toCellKey(r: number, c: number): CellKey {
+  return `${String(r)},${String(c)}` as CellKey;
 }
 
 // Run initGame() N times and collect results for probabilistic invariants

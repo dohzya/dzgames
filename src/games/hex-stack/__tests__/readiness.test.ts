@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { isCellReady } from "../board";
-import type { CellKey, CellMap, CellState, Board } from "../types";
+import type { CellKey, CellMap, CellState, Board, ColorId } from "../types";
 
 function makeBoard(rows: number, cols: number, stacks: Record<string, number[]> = {}): Board {
   return Array.from({ length: rows }, (_, r) =>
-    Array.from({ length: cols }, (_, c) => stacks[`${String(r)},${String(c)}`] ?? [])
-  );
+    Array.from({ length: cols }, (_, c) => (stacks[`${String(r)},${String(c)}`] ?? []) as ColorId[])
+  ) as Board;
 }
 
 function makeCellMap(entries: Array<[CellKey, CellState]>): CellMap {
