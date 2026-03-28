@@ -100,7 +100,22 @@ immédiatement soumise à la cascade BFS dès que la case se débloque. Les tran
 
 - Taille totale : 2 à 5 tuiles.
 - Nombre de couleurs : 1 à `maxColors` (selon progression).
-- Les couleurs sont choisies parmi les `nc` premières de la palette.
+- Les couleurs sont tirées par pondération parmi les `nc` premières de la palette.
+
+#### Poids des couleurs
+
+Les 4 couleurs de base ont un poids égal (1.0). Chaque couleur rare vaut ×0.7 par rapport à la précédente :
+
+| Couleur    | Indice | Poids |
+| ---------- | ------ | ----- |
+| Magenta    | 0      | 1.00  |
+| Menthe     | 1      | 1.00  |
+| Bleu       | 2      | 1.00  |
+| Jaune      | 3      | 1.00  |
+| Violet     | 4      | 0.70  |
+| Turquoise  | 5      | 0.49  |
+| Blanc      | 6      | 0.34  |
+| Noir       | 7      | 0.24  |
 
 ---
 

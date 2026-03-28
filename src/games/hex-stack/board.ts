@@ -8,7 +8,7 @@ import type {
   Snapshot,
   Progression,
 } from "./types";
-import { VROWS, VCOLS, OR, OC } from "./constants";
+import { VROWS, VCOLS, OR, OC, COLOR_WEIGHTS } from "./constants";
 import { getNeighbors } from "./geometry";
 import { baseCostForWave } from "./scoring";
 import { getProgression } from "./progression";
@@ -25,13 +25,23 @@ export function initBoard(): Board {
   return Array.from({ length: VROWS }, () => Array.from({ length: VCOLS }, () => [] as ColorId[]));
 }
 
+export function pickWeightedColor(nc: number, rnd: number): ColorId {
+  const total = COLOR_WEIGHTS.slice(0, nc).reduce((a, b) => a + b, 0);
+  let r = rnd * total;
+  for (let i = 0; i < nc; i++) {
+    r -= COLOR_WEIGHTS[i] ?? 1;
+    if (r <= 0) return i as ColorId;
+  }
+  return (nc - 1) as ColorId;
+}
+
 export function rndStack(progression: Progression): Stack {
   const { nc, maxColors } = progression;
   const total = 2 + Math.floor(Math.random() * 4);
   const numColors = 1 + Math.floor(Math.random() * Math.min(maxColors, nc));
   const pool: number[] = [];
   while (pool.length < numColors) {
-    const c = Math.floor(Math.random() * nc);
+    const c = pickWeightedColor(nc, Math.random());
     if (!pool.includes(c)) pool.push(c);
   }
   for (let i = pool.length - 1; i > 0; i--) {

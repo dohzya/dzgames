@@ -110,6 +110,10 @@ export const COLORS: ReadonlyArray<ColorDef> = [
   },
 ];
 
+// Colors 0–3 are base colors (equal weight).
+// Each subsequent color is 70% as likely as the previous rare color.
+export const COLOR_WEIGHTS: ReadonlyArray<number> = [1, 1, 1, 1, 0.7, 0.49, 0.34, 0.24];
+
 export const INC_CY = MAX_VIS * LAYER_H + R + 2;
 export const INC_H = Math.ceil(INC_CY + R + SIDE_D + 4);
 export const INC_GAP = CW * 2;
