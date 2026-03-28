@@ -106,16 +106,16 @@ immédiatement soumise à la cascade BFS dès que la case se débloque. Les tran
 
 Les 4 couleurs de base ont un poids égal (1.0). Chaque couleur rare vaut ×0.7 par rapport à la précédente :
 
-| Couleur    | Indice | Poids |
-| ---------- | ------ | ----- |
-| Magenta    | 0      | 1.00  |
-| Menthe     | 1      | 1.00  |
-| Bleu       | 2      | 1.00  |
-| Jaune      | 3      | 1.00  |
-| Violet     | 4      | 0.70  |
-| Turquoise  | 5      | 0.49  |
-| Blanc      | 6      | 0.34  |
-| Noir       | 7      | 0.24  |
+| Couleur   | Indice | Poids |
+| --------- | ------ | ----- |
+| Magenta   | 0      | 1.00  |
+| Menthe    | 1      | 1.00  |
+| Bleu      | 2      | 1.00  |
+| Jaune     | 3      | 1.00  |
+| Violet    | 4      | 0.70  |
+| Turquoise | 5      | 0.49  |
+| Blanc     | 6      | 0.34  |
+| Noir      | 7      | 0.24  |
 
 ---
 
@@ -156,10 +156,21 @@ Chaque clear crédite ses points **au moment où il se produit** pendant l'anima
 ### Points par clear
 
 ```
-clearPts(n) = 10 + (n - 10)²
+clearPtsBase = clearPts(n) × colorMult(c)
+
+clearPts(n)   = 10 + (n - 10)²
+colorMult(c)  = c < 4 ? 1 : c - 2
 ```
 
-`n` = nombre de tuiles effacées (minimum 10).
+`n` = nombre de tuiles effacées (minimum 10). `c` = indice de la couleur.
+
+| Couleur   | colorMult |
+| --------- | --------- |
+| Magenta–Jaune (0–3) | ×1 |
+| Violet (4)    | ×2 |
+| Turquoise (5) | ×3 |
+| Blanc (6)     | ×4 |
+| Noir (7)      | ×5 |
 
 Exemples :
 | Effacées | Points |

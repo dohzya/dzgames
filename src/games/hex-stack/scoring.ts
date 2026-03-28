@@ -28,6 +28,10 @@ export function emptyMult(emptied: number): number {
   return emptied + 1;
 }
 
+export function colorMult(color: number): number {
+  return color < 4 ? 1 : color - 2;
+}
+
 export function actionCost(base: number, usages: number): number {
   return base + 50 * usages;
 }

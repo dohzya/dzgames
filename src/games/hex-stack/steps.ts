@@ -1,7 +1,7 @@
 import type { Board, Stack, Step, StepResult } from "./types";
 import { CLEAR_AT } from "./constants";
 import { getNeighbors, cellXY } from "./geometry";
-import { clearPts } from "./scoring";
+import { clearPts, colorMult } from "./scoring";
 import { topOf } from "./board";
 
 // Internal mutable board type for BFS computation
@@ -94,7 +94,7 @@ export function computeSteps(boardIn: Board, tr: number, tc: number, incoming: S
               at: [r, c],
               color: topCC,
               count: cnt,
-              clearPtsBase: clearPts(cnt),
+              clearPtsBase: clearPts(cnt) * colorMult(topCC),
               popX: cx,
               popY: cy,
               before,
