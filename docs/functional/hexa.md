@@ -1,6 +1,6 @@
 ---
-date: 2026-03-27
-git_ref: d0b2eef # scoring: unbounded combo & emptyMult
+date: 2026-03-28
+git_ref: 2d2f56d
 ---
 
 # Hex Stack — Règles fonctionnelles
