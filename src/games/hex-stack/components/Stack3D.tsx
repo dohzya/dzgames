@@ -11,9 +11,12 @@ type Stack3DProps = {
   readonly ghost?: boolean;
 };
 
+/** Base visual layer height (thinner than LAYER_H used for layout). */
+const BASE_VIS_H = 4;
+
 /** Normal layer height up to MAX_VIS tiles; compresses beyond to cap total stack height. */
 function stackLayerH(n: number): number {
-  return n <= MAX_VIS ? LAYER_H : Math.max(2, Math.floor((MAX_VIS * LAYER_H) / n));
+  return n <= MAX_VIS ? BASE_VIS_H : Math.max(2, Math.floor((MAX_VIS * BASE_VIS_H) / n));
 }
 
 export default function Stack3D({
